@@ -146,18 +146,36 @@ def portfolio(request,pk):
    sum_current_stocks_value = 0
    sum_of_initial_stock_value = 0
    print(sum_recent_value)
+   main_api = 'https://openexchangerates.org/api/latest.json?'
+   api_key = 'app_id=d1fbee0697964c168f9f0859ee6564c6&base='
+   url = main_api + api_key + 'USD'
+   json_data = requests.get(url).json()
+   print("successful request")
+   #print(json_data)
+   all_rates = json_data["rates"]
+   #print(all_rates)
+   print("all retes collected")
+   collected = {}
+   for data in all_rates:
+       collected[data] = all_rates[data]
+   print(collected)
+   print("1")
    # Loop through each stock and add the value to the total
    for stock in stocks:
-        sum_current_stocks_value += stock.current_stock_value()
-        sum_of_initial_stock_value += stock.initial_stock_value()
+        value_now = stock.current_stock_value()
+        sum_current_stocks_value += round(value_now, 2)
+        sum_of_initial_stock_value += round(stock.initial_stock_value(), 2)
+        stock.exchange = {}
+        for cur in collected:
+            stock.exchange[cur] = round((collected[cur] * value_now), 2)
 
    return render(request, 'portfolio/portfolio.html', {'customers': customers,
                                                        'investments': investments,
                                                        'stocks': stocks,
-                                                       'sum_acquired_value': sum_acquired_value['acquired_value__sum'],
-                                                       'sum_recent_value': sum_recent_value['recent_value__sum'],
-                                                       'sum_current_stocks_value': sum_current_stocks_value,
-                                                       'sum_of_initial_stock_value': sum_of_initial_stock_value,
+                                                       'sum_acquired_value': round(sum_acquired_value['acquired_value__sum'], 2),
+                                                       'sum_recent_value': round(sum_recent_value['recent_value__sum'], 2),
+                                                       'sum_current_stocks_value': round(sum_current_stocks_value, 2),
+                                                       'sum_of_initial_stock_value': round(sum_of_initial_stock_value, 2),
                                                        'sum_all_initial': sum_acquired_value['acquired_value__sum'] + sum_of_initial_stock_value,
                                                        'sum_all_current': float(sum_recent_value['recent_value__sum']) + sum_current_stocks_value})
 

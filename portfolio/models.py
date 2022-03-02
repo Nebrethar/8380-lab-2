@@ -49,7 +49,7 @@ class Investment(models.Model):
         return str(self.customer)
 
     def results_by_investment(self):
-        return self.recent_value - self.acquired_value
+        return round(self.recent_value - self.acquired_value, 2)
 
 class Stock(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='stocks')
@@ -67,7 +67,7 @@ class Stock(models.Model):
         return str(self.customer)
 
     def initial_stock_value(self):
-        return self.shares * self.purchase_price
+        return round(self.shares * self.purchase_price, 2)
 
     def current_stock_price(self):
             symbol_f = str(self.symbol)
@@ -77,14 +77,14 @@ class Stock(models.Model):
             json_data = requests.get(url).json()
             open_price = float(json_data["data"][0]["open"])
             share_value = open_price
-            return share_value 
+            return round(share_value, 2)
 
     def current_stock_value(self):
-        return float(self.current_stock_price()) * float(self.shares)
+        return round(float(self.current_stock_price()) * float(self.shares), 2)
     
     def results_by_stock(self):
-        now = self.current_stock_value
-        then = self.initial_stock_value
+        now = round(self.current_stock_value, 2)
+        then = round(self.initial_stock_value, 2)
         return now - then
 
 
